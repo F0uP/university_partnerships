@@ -15,8 +15,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from universities.views import UniversityApiView
+from projects.views import ProjectApiView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('universities.urls')),
+    path('api/allProject', ProjectApiView.as_view({"get" : "get"})),
+    path('api/getProjectById', ProjectApiView.as_view({"get" : "getById"})),
+    path('api/getProjectByName', ProjectApiView.as_view({"get" : "getByName"})),
+    path('api/allUniversity', UniversityApiView.as_view({"get" : "get"})),
+    path('api/getUniversityById', UniversityApiView.as_view({"get" : "getById"})),
+    path('api/getUniversityByName', UniversityApiView.as_view({"get" : "getByName"})),
 ]
