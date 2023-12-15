@@ -11,4 +11,4 @@ class Project(models.Model):
     universitySec = models.ForeignKey(University, on_delete=models.CASCADE, related_name="projects_universitySec")
 
     def __str__(self):
-        return f'{self.project_name} - {self.universityMain} -> {self.universitySec}'
+        return f'{self.name} - {self.universityMain} -> {self.universitySec}'

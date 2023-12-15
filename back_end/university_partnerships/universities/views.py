@@ -19,7 +19,7 @@ class UniversityApiView(ViewSet):
         university = University.objects.filter(id=searched_id)
         if not university:
             return Response(status=status.HTTP_204_NO_CONTENT)
-        serializer = UniversitySerializer(university)
+        serializer = UniversitySerializer(university.get())
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def getByName(self, request, *args, **kwargs):
@@ -27,7 +27,7 @@ class UniversityApiView(ViewSet):
         university = University.objects.filter(name=searched_id)
         if not university:
             return Response(status=status.HTTP_204_NO_CONTENT)
-        serializer = UniversitySerializer(university)
+        serializer = UniversitySerializer(university.get())
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request, *args, **kwargs):
@@ -35,7 +35,7 @@ class UniversityApiView(ViewSet):
             'name' : request.data.get('name'),
             'url' : request.data.get('url'),
             'address' : request.data.get('address'),
-            'partner' : request.data.get('partner'),
+            'partner_universities' : request.data.get('partner_universities'),
         }
         serializer = UniversitySerializer(data=data)
         if serializer.is_valid():

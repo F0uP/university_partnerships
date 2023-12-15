@@ -20,7 +20,7 @@ class ProjectApiView(ViewSet):
         project = Project.objects.filter(id=searched_id)
         if not project:
             return Response(status=status.HTTP_204_NO_CONTENT)
-        serializer = ProjectSerializer(project)
+        serializer = ProjectSerializer(project.get())
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def getByName(self, request, *args, **kwargs):
@@ -28,7 +28,7 @@ class ProjectApiView(ViewSet):
         project = Project.objects.filter(name=searched_id)
         if not project:
             return Response(status=status.HTTP_204_NO_CONTENT)
-        serializer = ProjectSerializer(project)
+        serializer = ProjectSerializer(project.get())
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request, *args, **kwargs):
