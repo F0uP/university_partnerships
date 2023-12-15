@@ -13,10 +13,48 @@ To get the data needed, the program uses a web crawler searching for keywords an
 
 https://prezi.com/view/ArjuHGhTMEkvHujykSAK/
 
-# Concept
+## Concept
+
+### Install
+
+1. install python >= 3.9
+2. clone the repository
+3. cd into `back_end/university_partnerships`
+4. run `pip install -r requirements.txt`
+5. merge and create the db with `sh setupdb.sh` or `python manage.py migrate`
+6. run server with `sh startServer.sh` or `python manage.py runserver`
 
 ### Back-end
 
 We use django for the back-end.
+
+#### Database
+
+We use a simple database structure to ensure maximal speed for db request through api or direct access
+1. universities
+   1. university_info
+   2. partner_universities
+2. projects
+   1. university 1
+   2. university 2
+   3. project_info
+
+#### API
+
+The application allowes to add new enities through the default admin gui brought by django, but also with a rest api
+(keep in mind that all data is given in application/json format)
+you can post on all API-addresses to add a project/university
+
+##### Project API
+ - `{site_url}/api/allProject` - returns all projects in db
+ - `{site_url}/api/getProjectById` - returns a project based on given id
+ - `{site_url}/api/getProjectByName` - returns all project based on given name
+
+##### University API
+ - `{site_url}/api/allUniversity` - returns all universities in db
+ - `{site_url}/api/getUniversityById` - returns university based on given id
+ - `{site_url}/api/getUniversityByName` - returns all universities based on given name
+
+#### more
 
 TODO:
