@@ -6,7 +6,63 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
 
     <link rel="stylesheet" type="text/css" href={% static "universities/style.css"%} />
-    <script type="module" src={% static "universities/index.js"%}></script>
+    <script>
+      let map;
+
+      function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+          center: new google.maps.LatLng(0, 0),
+          zoom: 2,
+        });
+
+        const icons = {
+          library: {
+            url: "{% static 'universities/favico.ico' %}",
+            scaledSize: new google.maps.Size(26, 26), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(13, 13) // anchor
+          },
+        };
+        const features = [
+          {% for uni in universities %}
+          {
+            id: {{ uni.id }},
+            position: new google.maps.LatLng({{ uni.lat }}, {{ uni.lng }}),
+            type: "library",
+            title: "{{ uni.name }}",
+            partner: [{% if uni.partner_universities.count > 0 %}{% for partner in uni.partner_universities.all %}{{ partner.id }},{% endfor %}{% endif %}],
+          },{% endfor %}
+        ];
+      
+        // Create markers.
+        for (let i = 0; i < features.length; i++) {
+          const marker = new google.maps.Marker({
+            position: features[i].position,
+            icon: icons[features[i].type],
+            map: map,
+            title: features[i].title,
+            animation: google.maps.Animation.DROP,
+          });
+          marker.addListener('click', () => {
+            for (let j = 0; j < features.length; i++) {
+              if (features[i].partner.includes(features[j].id)) {
+                var flightPath = new google.maps.Polyline({
+                  path: [{lat:features[j].lat, lng:features[j].lng}, {lat:features[i].lat, lng:features[i].lng}],
+                  geodesic: true,
+                  strokeColor: '#FF0000',
+                  strokeOpacity: 1.0,
+                  strokeWeight: 2
+                });
+              // Add line to map
+              flightPath.setMap(map);
+              }
+            }
+          });
+        }
+      }
+      
+      window.initMap = initMap;
+      </script>
   </head>
   <body>
     <div id="map"></div>
@@ -19,7 +75,7 @@
       for more information.
       -->
     <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyANfxrVcQLICz3lVf4CYjTmUB44Hy1IqsM&callback=initMap&v=weekly"
+      src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap&v=weekly"
       defer
     ></script>
   </body>

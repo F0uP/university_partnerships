@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'universities',
     'projects',
+    'site_info',
+    'solo',
 ]
 
 MIDDLEWARE = [

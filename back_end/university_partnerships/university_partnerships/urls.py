@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/allProject', ProjectApiView.as_view({"get" : "get"})),
     path('api/getProjectById', ProjectApiView.as_view({"get" : "getById"})),
     path('api/getProjectByName', ProjectApiView.as_view({"get" : "getByName"})),
+    path('api/getProjectByUniversity', ProjectApiView.as_view({"get" : "getByUniversity"})),
     path('api/allUniversity', UniversityApiView.as_view({"get" : "get"})),
     path('api/getUniversityById', UniversityApiView.as_view({"get" : "getById"})),
     path('api/getUniversityByName', UniversityApiView.as_view({"get" : "getByName"})),

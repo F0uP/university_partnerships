@@ -31,6 +31,15 @@ class ProjectApiView(ViewSet):
         serializer = ProjectSerializer(project.get())
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+    def getByUniversity(self, request, *args, **kwargs):
+        searched_id = request.data.get('university')
+        projects = Project.objects.filter(universityMain = searched_id)
+        sec_projects = Project.objects.filter(universitySec = searched_id)
+        if not projects and not sec_projects:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        serializer = ProjectSerializer(projects.union(sec_projects), many = True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
     def post(self, request, *args, **kwargs):
         data = {
             'name' : request.data.get('name'),

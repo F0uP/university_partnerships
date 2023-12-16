@@ -4,11 +4,12 @@ from rest_framework.response import Response
 from .serializer import UniversitySerializer
 from .models import University
 from rest_framework import status
+from site_info.models import Site_info
 
 # Create your views here.
 #index view
 def index(request):
-    return render(request, 'index.html')
+    return render(request, 'index.html', {"google_api_key" : Site_info.get_solo().google_api_key, "universities" : University.objects.all()})
 
 class UniversityApiView(ViewSet):
     def get(self, request, *args, **kwargs):
@@ -29,7 +30,7 @@ class UniversityApiView(ViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         serializer = UniversitySerializer(university.get())
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     def post(self, request, *args, **kwargs):
         data = {
             'name' : request.data.get('name'),
