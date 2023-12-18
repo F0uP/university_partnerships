@@ -5,6 +5,7 @@ from solo.models import SingletonModel
 class Site_info(SingletonModel):
     google_api_key = models.CharField(max_length=1000)
     site_name = models.CharField(max_length=250, default="University_Partnerships")
+    site_url = models.CharField(max_length=250, default="127.0.0.1:8000")
 
     def __str__(self):
         return "global site setting setup"

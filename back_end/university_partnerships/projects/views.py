@@ -33,11 +33,17 @@ class ProjectApiView(ViewSet):
     
     def getByUniversity(self, request, *args, **kwargs):
         searched_id = request.data.get('university')
-        projects = Project.objects.filter(universityMain = searched_id)
-        sec_projects = Project.objects.filter(universitySec = searched_id)
-        if not projects and not sec_projects:
+        searched_partner_id = request.data.get('partner')
+        if searched_id == searched_partner_id:
+            if searched_id == None:
+                searched_id = request.GET.get('university')
+                searched_partner_id = request.GET.get('partner')
+            else:
+                return Response(status=status.HTTP_204_NO_CONTENT)
+        projects = Project.objects.filter(universityMain = searched_id, universitySec = searched_partner_id)
+        if not projects:
             return Response(status=status.HTTP_204_NO_CONTENT)
-        serializer = ProjectSerializer(projects.union(sec_projects), many = True)
+        serializer = ProjectSerializer(projects, many = True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request, *args, **kwargs):

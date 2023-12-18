@@ -2,12 +2,35 @@
 <html>
   <link rel="shortcut icon" type="image/png" href="{% static 'universities/favico.ico' %}" >
   <head>
-    <title>University Project</title>
+    <title>{{ site_name }}</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
 
     <link rel="stylesheet" type="text/css" href={% static "universities/style.css"%} />
     <script>
       let map;
+
+      var connection_shown = false;
+
+      var flightPathes = [];
+
+      var active_feature = null;
+
+      async function open_popup(uni, partner_uni) {
+        //get project data of uni to partner_uni
+        var httpreq = new XMLHttpRequest();
+        httpreq.open("GET", "http://{{ site_url }}/api/getProjectByUniversity?university=" + uni.id + "&partner=" + partner_uni.id, false);
+        httpreq.setRequestHeader("Content-Type", "application/json");
+        var params = {"university": uni.id, "partner": partner_uni.id};
+        httpreq.send(JSON.stringify(params));
+        console.log(httpreq.responseText);
+        if (httpreq.status == 204) {
+          var project_data = null;
+        } else {
+          var project_data = JSON.parse(httpreq.responseText);
+        }
+        console.log(project_data);
+      }
+    
 
       function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
@@ -22,17 +45,30 @@
             origin: new google.maps.Point(0,0), // origin
             anchor: new google.maps.Point(13, 13) // anchor
           },
+          sel_library: {
+            url: "{% static 'universities/selected_uni.ico' %}",
+            scaledSize: new google.maps.Size(26, 26), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(13, 13) // anchor
+          },
         };
         const features = [
           {% for uni in universities %}
           {
             id: {{ uni.id }},
             position: new google.maps.LatLng({{ uni.lat }}, {{ uni.lng }}),
+            lat: {{ uni.lat }},
+            lng: {{ uni.lng }},
             type: "library",
             title: "{{ uni.name }}",
             partner: [{% if uni.partner_universities.count > 0 %}{% for partner in uni.partner_universities.all %}{{ partner.id }},{% endfor %}{% endif %}],
           },{% endfor %}
         ];
+
+        const lineSymbol = {
+          path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+          scale: 3,
+        };
       
         // Create markers.
         for (let i = 0; i < features.length; i++) {
@@ -44,17 +80,39 @@
             animation: google.maps.Animation.DROP,
           });
           marker.addListener('click', () => {
-            for (let j = 0; j < features.length; i++) {
-              if (features[i].partner.includes(features[j].id)) {
-                var flightPath = new google.maps.Polyline({
-                  path: [{lat:features[j].lat, lng:features[j].lng}, {lat:features[i].lat, lng:features[i].lng}],
-                  geodesic: true,
-                  strokeColor: '#FF0000',
-                  strokeOpacity: 1.0,
-                  strokeWeight: 2
+            if (!connection_shown) {
+              connection_shown = true;
+              marker.setIcon(icons.sel_library);
+              for (let j = 0; j < features.length; j++) {
+                if (features[i].partner.includes(features[j].id)) {
+                  var flightPath = new google.maps.Polyline({
+                    path: [{lat:features[i].lat, lng:features[i].lng}, {lat:features[j].lat, lng:features[j].lng}],
+                    geodesic: true,
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2,
+                    icons: [{
+                      icon: lineSymbol,
+                      offset: '100%',
+                    },],
+                  });
+                // Add line to map
+                flightPath.setMap(map);
+                flightPathes.push(flightPath);
+                active_feature = features[i];
+                }
+              }
+            } else {
+              if (active_feature.id == features[i].id) {
+                marker.setIcon(icons.library);
+                connection_shown  = false;
+                flightPathes.forEach(function(flightPath) {
+                  flightPath.setMap(null);
                 });
-              // Add line to map
-              flightPath.setMap(map);
+              } else {
+                //open popup
+                //get j by its id
+                open_popup(active_feature, features[i]);
               }
             }
           });
