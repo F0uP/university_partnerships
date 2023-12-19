@@ -15,20 +15,21 @@
 
       var active_feature = null;
 
-      async function open_popup(uni, partner_uni) {
+      let infoWindow
+
+      function get_projects(uni, partner_uni) {
         //get project data of uni to partner_uni
         var httpreq = new XMLHttpRequest();
         httpreq.open("GET", "http://{{ site_url }}/api/getProjectByUniversity?university=" + uni.id + "&partner=" + partner_uni.id, false);
         httpreq.setRequestHeader("Content-Type", "application/json");
         var params = {"university": uni.id, "partner": partner_uni.id};
         httpreq.send(JSON.stringify(params));
-        console.log(httpreq.responseText);
         if (httpreq.status == 204) {
           var project_data = null;
         } else {
           var project_data = JSON.parse(httpreq.responseText);
         }
-        console.log(project_data);
+        return project_data;
       }
     
 
@@ -37,6 +38,8 @@
           center: new google.maps.LatLng(0, 0),
           zoom: 2,
         });
+        
+        infoWindow = new google.maps.InfoWindow();
 
         const icons = {
           library: {
@@ -112,7 +115,18 @@
               } else {
                 //open popup
                 //get j by its id
-                open_popup(active_feature, features[i]);
+                projects = get_projects(active_feature, features[i]);
+                var contentString = '<h1>' + active_feature.title + ' - ' + features[i].title + '</h1>';
+                if (projects == null) {
+                  contentString += '<p>No projects found</p>';
+                } else {
+                  for (let j = 0; j < projects.length; j++) {
+                    contentString += '<div class="project"><h4>' + projects[j].name + '</h4><p>'
+                        + projects[j].description + '  <a href=' + projects[j].url + '>more...</a></p></div>';
+                  }
+                }
+                infoWindow.setContent(contentString);
+                infoWindow.open(map, marker);
               }
             }
           });
@@ -124,6 +138,7 @@
   </head>
   <body>
     <div id="map"></div>
+
 
     <!--
       The `defer` attribute causes the callback to execute after the full HTML
