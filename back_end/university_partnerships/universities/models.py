@@ -19,15 +19,15 @@ class University(models.Model):
     def save(self, *args, **kwargs):
         def getCoordinates(address):
             google_key = Site_info.get_solo().google_api_key
-            resp = requests.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + google_key)
+            resp = requests.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + google_key, timeout=3000)
             if resp.status_code == 200:
                 data = resp.json()
                 try:
                     return data["results"][0]["geometry"]["location"]["lat"], data["results"][0]["geometry"]["location"]["lng"]
                 except:
                     # try with places api
-                    data = requests.get("https://maps.googleapis.com/maps/api/place/textsearch/json?query=" + address + "&key=" + google_key).json()
                     try:
+                        data = requests.get("https://maps.googleapis.com/maps/api/place/textsearch/json?query=" + address + "&key=" + google_key, timeout=3000).json()
                         return data["results"][0]["geometry"]["location"]["lat"], data["results"][0]["geometry"]["location"]["lng"]
                     except:
                         print("ERROR: Had problems finding coordinates for address " + address + " response was:\n", data)
